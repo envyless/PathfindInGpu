@@ -14,12 +14,10 @@ struct PathInfo
 
 // contains all of path info ordered index
 RWStructuredBuffer<PathInfo> PathBuffer;
-
-// contains next index array
-RWTexture2D<int> ResultIndex;
-
-//
+RWTexture2D<int> ResultIndexes;
 uint NumWidth;
+float2 PlayerPosition, GoalPosition;
+
 
 uint GetIndex(uint3 id)
 {

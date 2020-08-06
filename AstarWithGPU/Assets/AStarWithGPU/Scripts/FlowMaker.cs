@@ -24,12 +24,14 @@ public class FlowMaker : MonoBehaviour
     ObstacleMaker obstacleMaker;
 
     //shader vars
-    public ComputeShader flowMakerComputeShader;
-    Int32 Mainkernel = -1;    
-    public Vector3 FlowGoalPos;
-    public BufferForGPU.PathInfo[] PathInfos;
+    public ComputeShader flowMakerComputeShader;        // working in this compute shader 
+    Int32 Mainkernel = -1;                              // kernel id
+    public Vector3 FlowGoalPos;                         // goal position
+    public BufferForGPU.PathInfo[] PathInfos;           // path information length about 10000 over
 
-    ComputeBuffer cbPathInfos;
+    public Int32[] ResultIndexes;                         // get result data;
+
+    ComputeBuffer cbPathInfos, cbResultBuffer;
     
 
     private void Awake()
@@ -48,10 +50,20 @@ public class FlowMaker : MonoBehaviour
     private void SetUpShader()
     {        
         Mainkernel = flowMakerComputeShader.FindKernel("CSMain");
-        cbPathInfos = new ComputeBuffer(PathInfos.Length, PathInfos.GetByteSize<BufferForGPU.PathInfo>());
+
+        // make buffer and set
+        cbPathInfos = new ComputeBuffer(PathInfos.Length, PathInfos.GetByteSize<BufferForGPU.PathInfo>());        
         cbPathInfos.SetData(PathInfos);
         flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
+
+        // make buffer and set
+        ResultIndexes = new Int32[100];
+        cbResultBuffer = new ComputeBuffer(100, ResultIndexes.GetByteSize<Int32>());
+        flowMakerComputeShader.SetBuffer(Mainkernel, "ResultIndexes", cbResultBuffer);
+
         flowMakerComputeShader.SetInt("NumWidth", obstacleMaker.NumObstacleW);
+
+
     }    
 
     public Vector3 GetFlow(Vector3 position)
@@ -70,9 +82,22 @@ public class FlowMaker : MonoBehaviour
             Debug.LogError("mouse Down 1");
             flowMakerComputeShader.Dispatch(Mainkernel, 1, 1, 1);
 
+            Vector3 goalPos = ScreenToWorldPlane.GetWorldPlanePos();
+
+            //set player position
+            var naviToGoal = FindObjectOfType<NaviToGoal>();
+            var PlayerPosition = naviToGoal.transform.position;
+            float x = PlayerPosition.x;
+            float y = PlayerPosition.z;
+
+            flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
+            flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);
+
             //get
-            cbPathInfos.GetData(PathInfos);
-            Debug.LogError(PathInfos[0].Position);
+            cbPathInfos.GetData(ResultIndexes);
+            
+            naviToGoal.PathIndexesToGoal.Clear();
+            naviToGoal.PathIndexesToGoal.AddRange(ResultIndexes);
         }
     }
 
