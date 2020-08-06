@@ -18,8 +18,7 @@ public class ObstacleMaker : MonoBehaviour
     {
         gameCamera = Camera.main;
         goObstacles = GameObject.Find("Obstacles");
-
-        PathInfos = BufferForGPU.MakePathInfos(NumObstacleW, NumObstacleH, Vector3.zero);        
+        PathInfos = FlowMaker.Instance.PathInfos;                
     }
 
     //fixed is called more frequently
@@ -36,15 +35,7 @@ public class ObstacleMaker : MonoBehaviour
 
         if(IsMakeState)
         {
-            //it's pixel coordinate like resolution 
-            var pixel_coordinate = Input.mousePosition;
-            pixel_coordinate.z = gameCamera.transform.position.y;
-            var worldPos = gameCamera.ScreenToWorldPoint(pixel_coordinate);
-
-            //make that int
-            worldPos.x = (int)worldPos.x;
-            worldPos.y = (int)worldPos.y;
-            worldPos.z = (int)worldPos.z;
+            var worldPos = ScreenToWorldPlane.GetWorldPlanePos();
 
             //try 4 times for make more big wall
             MakeObstacleInIndex(worldPos);

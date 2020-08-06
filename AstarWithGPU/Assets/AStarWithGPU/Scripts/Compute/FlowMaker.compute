@@ -1,0 +1,35 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+
+struct PathInfo
+{
+    bool IsNotPathAble;
+    int Index;
+
+    //position
+    float2 position;
+};
+ 
+
+// contains all of path info ordered index
+RWStructuredBuffer<PathInfo> PathBuffer;
+
+// contains next index array
+RWTexture2D<int> ResultIndex;
+
+//
+uint NumWidth;
+
+uint GetIndex(uint3 id)
+{
+    return id.x + id.y * NumWidth;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint index = GetIndex(id);
+    PathBuffer[index].position.x = 10;
+    // TODO: insert actual code here!
+}

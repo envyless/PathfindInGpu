@@ -38,8 +38,18 @@ public class BufferForGPU
     /// path information is in each cell of map
     /// </summary>
     public struct PathInfo
-    {        
-        public bool IsNotPathAble;
+    {
+        private byte _value;
+        public bool IsNotPathAble {
+            get
+            {
+                return _value == 0;
+            }
+            set
+            {
+                _value = value ? (byte)1 : (byte)0;               
+            }
+        }
         public int Index;
 
         //position

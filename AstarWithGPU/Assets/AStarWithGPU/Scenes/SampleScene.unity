@@ -150,6 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2900c3dd88dcc8499b61f7538f66a68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NumObstacleW: 100
+  NumObstacleH: 100
 --- !u!4 &259429357
 Transform:
   m_ObjectHideFlags: 0
@@ -261,7 +263,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -687,6 +689,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc66f9f3c75a7de4f95005e53e3cab1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  flowMakerComputeShader: {fileID: 7200000, guid: fe49d62ee8dee4a4485887c16e989ed2,
+    type: 3}
+  FlowGoalPos: {x: 0, y: 0, z: 0}
 --- !u!1 &1990493135
 GameObject:
   m_ObjectHideFlags: 0
@@ -697,10 +702,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1990493136}
   - component: {fileID: 1990493137}
-  - component: {fileID: 1990493138}
-  - component: {fileID: 1990493140}
-  - component: {fileID: 1990493139}
-  - component: {fileID: 1990493141}
   m_Layer: 0
   m_Name: AI_Character
   m_TagString: Untagged
@@ -735,71 +736,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b6cc4c746ce763418e0da47b4d7c04d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  navMeshData: {fileID: 23800000, guid: 9ad9df4cab2a80047b797f366422603b, type: 2}
-  nma: {fileID: 1990493138}
-  mat: {fileID: 2100000, guid: eae3951d0de49354da8949765f555f39, type: 2}
---- !u!195 &1990493138
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1990493135}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
---- !u!65 &1990493139
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1990493135}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &1990493140
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1990493135}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &1990493141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1990493135}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a813a4c39cfb2e4a927aab8d9217c39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  navMeshFilter: {fileID: 0}
-  computeShader: {fileID: 7200000, guid: 15dac5d0df2d0214bb4777057a6a832e, type: 3}
+  GoalPos: {x: 0, y: 0, z: 0}
+  Speed: 10
+  MoveDir: {x: 0, y: 0, z: 0}
