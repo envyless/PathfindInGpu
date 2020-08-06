@@ -94,15 +94,20 @@ public class FlowMaker : MonoBehaviour
             flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);
 
             //get
-            cbPathInfos.GetData(ResultIndexes);
+            /*cbPathInfos.GetData();
             
             naviToGoal.PathIndexesToGoal.Clear();
-            naviToGoal.PathIndexesToGoal.AddRange(ResultIndexes);
+            naviToGoal.PathIndexesToGoal.AddRange(ResultIndexes);*/
+
+            ComputeBufferToTexture.Instance.SetTexture(
+                PathInfos, 
+                (index=>{ return Color.cyan; }) // color setting                
+                );
         }
     }
 
     private void OnDestroy()
     {
-        cbPathInfos.Release();
+        cbPathInfos?.Release();
     }
 }
