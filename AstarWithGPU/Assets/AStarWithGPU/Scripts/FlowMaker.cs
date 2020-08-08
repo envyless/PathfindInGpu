@@ -52,7 +52,7 @@ public class FlowMaker : MonoBehaviour
         Mainkernel = flowMakerComputeShader.FindKernel("CSMain");
 
         // make buffer and set
-        cbPathInfos = new ComputeBuffer(PathInfos.Length, PathInfos.GetByteSize<BufferForGPU.PathInfo>());        
+        cbPathInfos = new ComputeBuffer(PathInfos.Length, CommonUtilsExtension.GetByteSize<BufferForGPU.PathInfo>());        
         cbPathInfos.SetData(PathInfos);
         flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
 
@@ -79,8 +79,8 @@ public class FlowMaker : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Mouse1))
         {
-            Debug.LogError("mouse Down 1");
-            flowMakerComputeShader.Dispatch(Mainkernel, 1, 1, 1);
+            Debug.LogError("mouse Down 1");            
+            flowMakerComputeShader.Dispatch(Mainkernel, PathInfos.Length, 1, 1);
 
             Vector3 goalPos = ScreenToWorldPlane.GetWorldPlanePos();
 
@@ -93,15 +93,23 @@ public class FlowMaker : MonoBehaviour
             flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
             flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);
 
+            cbPathInfos.GetData(PathInfos);
             //get
-            /*cbPathInfos.GetData();
+            /*
             
             naviToGoal.PathIndexesToGoal.Clear();
             naviToGoal.PathIndexesToGoal.AddRange(ResultIndexes);*/
 
             ComputeBufferToTexture.Instance.SetTexture(
+                "PathInfos",
                 PathInfos, 
-                (index=>{ return Color.cyan; }) // color setting                
+                (index=>{ return new Color(PathInfos[index].Position.x, PathInfos[index].Position.y, 0); }) // color setting                
+                );
+
+            ComputeBufferToTexture.Instance.SetTexture(
+                "ResultIndexes",
+                ResultIndexes,
+                (index => { return new Color(ResultIndexes[index], 0, 0); }) // color setting                
                 );
         }
     }

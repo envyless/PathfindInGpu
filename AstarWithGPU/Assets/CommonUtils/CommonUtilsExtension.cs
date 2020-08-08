@@ -20,4 +20,9 @@ public static class CommonUtilsExtension
     {
         return GetSize<T>() * list.Length;
     }
+
+    public static int GetByteSize<T>() 
+    {
+        return System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
+    }
 }

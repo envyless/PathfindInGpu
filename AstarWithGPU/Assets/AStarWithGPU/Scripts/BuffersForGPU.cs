@@ -43,7 +43,7 @@ public class BufferForGPU
         public bool IsNotPathAble {
             get
             {
-                return _value == 0;
+                return _value == 1;
             }
             set
             {

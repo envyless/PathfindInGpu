@@ -31,10 +31,9 @@ public class ComputeBufferToTexture
         }
     }
 
-    public Texture2D SetTexture(Array array, MakeColorFromIndex callback, int width = 0, int height = 0)
+    public Texture2D SetTexture(string textureName, Array array, MakeColorFromIndex callback, int width = 0, int height = 0)
     {
         RIWithTexture rwTexture;
-        Debug.LogError("as");
         
         if(width == 0 && height == 0)
         {
@@ -52,6 +51,9 @@ public class ComputeBufferToTexture
             var rawImageOrigin = Resources.Load("RawImage");
             var goRawImage = GameObject.Instantiate(rawImageOrigin, CanvasTextures.transform) as GameObject;
             var rawImage = goRawImage.GetComponent<RawImage>();
+            var name = goRawImage.GetComponentInChildren<Text>();
+            name.text = textureName;
+
             rwTexture.ri = rawImage;
             rwTexture.ri.texture = rwTexture.tex2d;
         }
