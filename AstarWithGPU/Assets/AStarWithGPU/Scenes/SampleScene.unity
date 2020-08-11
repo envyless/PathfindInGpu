@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2900c3dd88dcc8499b61f7538f66a68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumObstacleW: 10
-  NumObstacleH: 10
+  NumObstacleW: 100
+  NumObstacleH: 100
 --- !u!4 &259429357
 Transform:
   m_ObjectHideFlags: 0

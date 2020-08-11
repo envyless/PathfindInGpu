@@ -5,8 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public delegate Color MakeColorFromIndex(int index);
+public delegate (string, Vector3) MakeStringFromIndex(int index);
 
-public class ComputeBufferToTexture 
+public class ComputeBufferToTexture : MonoBehaviour
 {
     List<Texture2D> texture;
     public static ComputeBufferToTexture Instance;
@@ -18,16 +19,20 @@ public class ComputeBufferToTexture
     }
 
     Dictionary<Array, RIWithTexture> arrayTextureMap = new Dictionary<Array, RIWithTexture>();
-    Canvas CanvasTextures;
+    Canvas canvasTextures;
+    Transform parentTexture;
 
     [RuntimeInitializeOnLoadMethod]
     public static void SetUp()
     {
         if(Instance == null)
         {
-            Instance = new ComputeBufferToTexture();
+            var goInstance = new GameObject("Manager");
+            Instance = goInstance.AddComponent<ComputeBufferToTexture>();
+            goInstance.name = Instance.ToString();
             var originTextureUI = Resources.Load("TextureUI");
-            Instance.CanvasTextures = (GameObject.Instantiate(originTextureUI) as GameObject).GetComponentInChildren<Canvas>();
+            Instance.canvasTextures = (GameObject.Instantiate(originTextureUI) as GameObject).GetComponentInChildren<Canvas>();
+            Instance.parentTexture = Instance.canvasTextures.transform.Find("ParentTexture");
         }
     }
 
@@ -49,7 +54,7 @@ public class ComputeBufferToTexture
             rwTexture.tex2d = new Texture2D(width, height);
 
             var rawImageOrigin = Resources.Load("RawImage");
-            var goRawImage = GameObject.Instantiate(rawImageOrigin, CanvasTextures.transform) as GameObject;
+            var goRawImage = GameObject.Instantiate(rawImageOrigin, parentTexture) as GameObject;
             var rawImage = goRawImage.GetComponent<RawImage>();
             var name = goRawImage.GetComponentInChildren<Text>();
             name.text = textureName;
@@ -78,5 +83,68 @@ public class ComputeBufferToTexture
         rwTexture.tex2d.Apply();
         rwTexture.ri.texture = rwTexture.tex2d;
         return rwTexture.tex2d;
+    }
+
+    private Dictionary<Array, List<Text>> arrayToText = new Dictionary<Array, List<Text>>();
+    
+    [Range(0,1000)]
+    public int MaxNumOfText = 1000;
+    //texture2label
+    public static void SetText(Array array, MakeStringFromIndex callback, int width = 0)
+    {
+        if (width == 0)
+        {
+            var sqrt = Mathf.Sqrt(array.Length);
+            width = (int)sqrt;
+        }
+
+        Instance.arrayToText.TryGetValue(array, out var textList);
+        if (textList == null)
+        {
+            int numArray = array.Length;
+            textList = new List<Text>(numArray);
+            Instance.arrayToText.Add(array, textList);
+
+            foreach (var atom in array)
+            {
+                var a2t = Resources.Load("Array2Text");
+                var instanced_a2t = GameObject.Instantiate(a2t, Instance.canvasTextures.transform) as GameObject;
+
+                var text = instanced_a2t.GetComponentInChildren<Text>();
+                textList.Add(text);
+            }
+        }
+
+        
+
+        int x = 0;
+        int y = 0;
+        int index = 0;
+        foreach (var text in textList)
+        {
+            bool isActive = Instance.MaxNumOfText > index;
+            if(isActive == false)
+            {
+                text.gameObject.SetActive(false);
+                continue;
+            }
+
+            var info_and_position = callback(index);
+            text.transform.position = Camera.main.WorldToScreenPoint(info_and_position.Item2);
+            text.text = info_and_position.Item1;
+            text.gameObject.SetActive(text.text != string.Empty);
+            if(text.gameObject.activeInHierarchy)
+            {
+                Debug.LogError("pos : " + info_and_position.Item2);
+            }
+            ++x;
+            ++index;
+
+            if (x >= width)
+            {
+                x = 0;
+                ++y;
+            }
+        }
     }
 }

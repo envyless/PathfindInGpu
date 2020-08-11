@@ -55,9 +55,10 @@ public class ObstacleMaker : MonoBehaviour
             return;
 
         //when you can go there, we can make obstacle in there
-        var is_make_able = !PathInfos[index].IsNotPathAble;
+        var is_make_able = !(PathInfos[index].IsNotPathAble);
         if (is_make_able)
         {
+            PathInfos[index].Position = new Vector2(worldPos.x, worldPos.z);
             var originObstacle = Resources.Load<GameObject>("Obstacle");
             var instancedObstacle = GameObject.Instantiate(originObstacle, goObstacles.transform);
             worldPos.y = 1.5f;

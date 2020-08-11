@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CBType;
 
 public class BufferForGPU
 {
@@ -39,8 +40,13 @@ public class BufferForGPU
     /// </summary>
     public struct PathInfo
     {
-        private byte _value;
-        public bool IsNotPathAble {
+        public boolean IsNotPathAble;
+        public int Index;
+        public Vector2 Position;
+
+        public float CostToGoal;
+
+        /*public bool IsNotPathAble {
             get
             {
                 return _value == 1;
@@ -49,11 +55,7 @@ public class BufferForGPU
             {
                 _value = value ? (byte)1 : (byte)0;               
             }
-        }
-        public int Index;
-
-        //position
-        public Vector2 Position;
+        }*/
 
         public int CalcuateIndex(Vector2 position)
         {
@@ -63,6 +65,5 @@ public class BufferForGPU
             
             return Index;
         }
-    }
-
+    }    
 }

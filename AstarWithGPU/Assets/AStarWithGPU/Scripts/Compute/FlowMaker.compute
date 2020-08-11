@@ -9,6 +9,8 @@ struct PathInfo
 
     //position
     float2 position;
+    float CostToGoal;
+    
 };
  
 
@@ -21,7 +23,7 @@ float2 PlayerPosition, GoalPosition;
 
 uint GetIndex(uint3 id)
 {
-    return id.x + id.y * NumWidth;
+	return id.x; //+ id.y * NumWidth;
 }
 
 [numthreads(1,1,1)]
@@ -29,11 +31,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint index = GetIndex(id);
     
-    //position set
-    PathBuffer[id.x].position.x += id.x * 0.01;
-
-    if (id.x == 0)
-        PathBuffer[id.x + 1].position.y += 0.2;
+	PathInfo pathInfo = PathBuffer[index];    
+	PathBuffer[index] = pathInfo;
+    
     /*if (index % 2 == 0 && index - 1 > 0)
     {
         PathBuffer[index].position.x -= id.x;
@@ -42,4 +42,4 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //PathBuffer[index].position.y = id.y;
 
     //make vector to 
-}
+	}
