@@ -89,6 +89,13 @@ public class ComputeBufferToTexture : MonoBehaviour
     
     [Range(0,1000)]
     public int MaxNumOfText = 1000;
+    
+    /// <summary>
+    /// when you need to show array atom info, use this. and MaxNumOfText will limit this count
+    /// </summary>
+    /// <param name="array"></param>
+    /// <param name="callback">callback must return world position vector!</param>
+    /// <param name="width"></param>
     //texture2label
     public static void SetText(Array array, MakeStringFromIndex callback, int width = 0)
     {
@@ -120,26 +127,32 @@ public class ComputeBufferToTexture : MonoBehaviour
         int x = 0;
         int y = 0;
         int index = 0;
+        int active_count = 0;
         foreach (var text in textList)
-        {
-            bool isActive = Instance.MaxNumOfText > index;
-            if(isActive == false)
+        {            
+            do
             {
-                text.gameObject.SetActive(false);
-                continue;
-            }
+                bool isActive = Instance.MaxNumOfText > active_count;
+                if (isActive == false)
+                {
+                    text.gameObject.SetActive(false);
+                    break;
+                }
 
-            var info_and_position = callback(index);
-            text.transform.position = Camera.main.WorldToScreenPoint(info_and_position.Item2);
-            text.text = info_and_position.Item1;
-            text.gameObject.SetActive(text.text != string.Empty);
-            if(text.gameObject.activeInHierarchy)
-            {
-                Debug.LogError("pos : " + info_and_position.Item2);
-            }
+                var info_and_position = callback(index);
+                text.transform.position = Camera.main.WorldToScreenPoint(info_and_position.Item2);
+                text.text = info_and_position.Item1;
+                text.gameObject.SetActive(text.text != string.Empty);
+                if (text.gameObject.activeInHierarchy)
+                {
+                    active_count++;                    
+                }
+
+            } while (false);
+            
+            //increase index
             ++x;
             ++index;
-
             if (x >= width)
             {
                 x = 0;
