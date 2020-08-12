@@ -1,4 +1,6 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
+﻿#include "Assets/CommonUtils/Compute/CommonCS.compute"
+
+// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
 
@@ -15,43 +17,148 @@ struct PathInfo
 struct CalculatePathInfo
 {
     int Index;
+    float Cost;
+    
+    float GetSize()
+    {
+        return 0;
+    }
 };
- 
+
 
 // contains all of path info ordered index
 RWStructuredBuffer<PathInfo> PathBuffer;
 // need calcuate that index
-RWStructuredBuffer<int> CalcPathBuffer;
-RWTexture2D<int> ResultIndexes;
+RWStructuredBuffer<CalculatePathInfo> CalcPathBuffer;
 int NumWidth;
 int NumHeight;
+int PlayerIndex;
 float2 PlayerPosition, GoalPosition;
+MakeArray(IntList ,int, 100) b;
 
+IntList cc;
 
 uint GetIndex(uint3 id)
-{
+{    
+    cc.index++;
+    b.index++;
+    PathBuffer[id.x].CostToGoal = cc.index;
 	return id.x; //+ id.y * NumWidth;
 }
 
-int TetWhile(int index)
+float GetCostToGoal(uint from_index, uint goal_index, in CalculatePathInfo openList[100])
 {
-    int aaa[100];
-    StructuredBuffer<int> aaab;
-    int iVar[3] = { 1, 2, 3 };
+    PathInfo pathInfoFrom = PathBuffer[from_index];
+    //check able to go?
+    if(pathInfoFrom.IsNotPathAble)
+        return -1;
     
-    while(index < 5)
+    PathInfo pathInfoGoal = PathBuffer[goal_index];
+    float2 toLen = pathInfoGoal.position - pathInfoFrom.position;
+    float doubled_len = toLen.x * toLen.x + toLen.y * toLen.y;
+    
+    CalcPathBuffer[from_index].Cost = openList[0].GetSize();
+    return doubled_len; 
+}
+
+
+
+int PathFind(int index)
+{
+    //list index    
+    //temp buffer
+    CalculatePathInfo openList[100];
+    CalculatePathInfo closeList[100];
+    
+    int path[100];
+    int current_index = 0;
+    int goal_index = 100;
+    bool isFind = false;        
+    
+    PathInfo pathInfo = PathBuffer[index];
+    pathInfo.CostToGoal = GetCostToGoal(index, goal_index, openList);
+    
+    PathBuffer[index] = pathInfo;
+    while(!isFind)
     {
-        aaab.Append(3);
-        aaa[99] = 1;
-        ++index;
+        if(current_index >= 100)
+            break;   
+        current_index++;                                   
+                
+        int indexY = index / NumWidth;
+        int indexX = index % NumWidth;
+        
+        int up_index = index + NumWidth;
+        if(indexY + 1 < NumHeight)
+        {
+            float h = 1;
+            uint target_index = up_index;
+            //float cost_to_goal = GetCostToGoal(target_index, goal_index);    
+        }
+            
+        int down_index = index - NumWidth;
+        //down check
+        if(indexY - 1 >= 0)
+        {
+            //do
+            float h = 1;
+            uint target_index = down_index;
+            //do
+            if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+            {
+                PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
+            }
+        }    
+        
+        int left = index - 1;
+        //left check
+        if(indexX - 1 > 0)
+        {
+            //do
+            //do
+            float h = 1;
+            uint target_index = left;
+            //do
+            if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+            {
+                PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
+            }
+        }
+        
+        int right = index + 1;
+        if(indexX + 1 < NumWidth)
+        {
+            //do
+            //do
+            float h = 1;
+            uint target_index = right;
+            //do
+            if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+            {
+                PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
+            }
+        }
+        
+        int r_up = up_index + 1;
+        int l_up = up_index - 1;
+        int r_down = down_index + 1;
+        int l_down = down_index - 1;
+            
+        
+        //path[startPathIndex];
+        return 0;
+        
     }
-    return 0;
+    
 }
 
 [numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    NumHeight = 100;
+    b.index = 1;
+    cc.index =2;
+    
+    NumHeight = 100;    
     
     //thread id to index
     uint index = GetIndex(id);
@@ -59,95 +166,5 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //get calc index
     //int index_to_calc = CalcPathBuffer[ index];
     PathInfo pathInfo = PathBuffer[index];
- 
-    //already cacluated
-    if (pathInfo.CostToGoal != 0)
-        return;
-    
-    int indexY = index / NumWidth;
-    int indexX = index % NumWidth;
-    
-    int up_index = index + NumWidth;
-    TetWhile(1);
-    return;
-    //up check
-    if(indexY + 1 < NumHeight)
-    {
-        float h = 1;
-        uint target_index = up_index;
-
-        //do
-        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-        {
-            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;            
-        }
-    }
-        
-    int down_index = index - NumWidth;
-    //down check
-    if(indexY - 1 >= 0)
-    {
-        //do
-        float h = 1;
-        uint target_index = down_index;
-        //do
-        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-        {
-            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
-        }
-    }    
-    
-    int left = index - 1;
-    //left check
-    if(indexX - 1 > 0)
-    {
-        //do
-        //do
-        float h = 1;
-        uint target_index = left;
-        //do
-        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-        {
-            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
-        }
-    }
-    
-    int right = index + 1;
-    if(indexX + 1 < NumWidth)
-    {
-        //do
-        //do
-        float h = 1;
-        uint target_index = right;
-        //do
-        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-        {
-            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
-        }
-    }
-    
-    int r_up = up_index + 1;
-    int l_up = up_index - 1;
-    int r_down = down_index + 1;
-    int l_down = down_index - 1;
-    
-    
-    if (up_index )
-    
-    
-    
-    
-    PathBuffer[index] = pathInfo;
-    
-    
-    
-    
-    /*if (index % 2 == 0 && index - 1 > 0)
-    {
-        PathBuffer[index].position.x -= id.x;
-    }*/
-
-    //PathBuffer[index].position.y = id.y;
-
-    //make vector to 
+    PathFind(PlayerIndex);        
 }

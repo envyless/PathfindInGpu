@@ -29,7 +29,7 @@ public class FlowMaker : MonoBehaviour
     public Vector3 FlowGoalPos;                         // goal position
     public BufferForGPU.PathInfo[] PathInfos;           // path information length about 10000 over
 
-    public Int32[] ResultIndexes;                         // get result data;
+    public BufferForGPU.CalcuatedInfo[] ResultIndexes;                         // get result data;
 
     ComputeBuffer cbPathInfos, cbResultBuffer;
     
@@ -45,6 +45,7 @@ public class FlowMaker : MonoBehaviour
     private void Start()
     {
         SetUpShader();
+        ComputeBufferToTexture.SetScaleTexture(3);
     }
 
     private void SetUpShader()
@@ -57,11 +58,12 @@ public class FlowMaker : MonoBehaviour
         flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
 
         // make buffer and set
-        ResultIndexes = new Int32[100];
-        cbResultBuffer = new ComputeBuffer(100, ResultIndexes.GetByteSize<Int32>());
-        flowMakerComputeShader.SetBuffer(Mainkernel, "ResultIndexes", cbResultBuffer);
+        ResultIndexes = new BufferForGPU.CalcuatedInfo[10000];
+        cbResultBuffer = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalcuatedInfo>());
+        flowMakerComputeShader.SetBuffer(Mainkernel, "CalcPathBuffer", cbResultBuffer);
 
         flowMakerComputeShader.SetInt("NumWidth", obstacleMaker.NumObstacleW);
+        flowMakerComputeShader.SetInt("NumHeight", obstacleMaker.NumObstacleH);
     }
 
     public Vector3 GetFlow(Vector3 position)
@@ -77,10 +79,8 @@ public class FlowMaker : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Mouse1))
         {
-            cbPathInfos.SetData(PathInfos);
+            cbPathInfos.SetData(PathInfos);            
             flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
-            flowMakerComputeShader.Dispatch(Mainkernel, PathInfos.Length, 1, 1);
-
             Vector3 goalPos = ScreenToWorldPlane.GetWorldPlanePos();
 
             //set player position
@@ -89,9 +89,15 @@ public class FlowMaker : MonoBehaviour
             float x = PlayerPosition.x;
             float y = PlayerPosition.z;
 
-            flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
-            flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);
+            var playerIndex = BufferForGPU.CalcuateIndex((int)PlayerPosition.x, (int)PlayerPosition.z);
 
+            flowMakerComputeShader.SetInt("PlayerIndex", playerIndex);
+            flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
+            flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);            
+            flowMakerComputeShader.Dispatch(Mainkernel, PathInfos.Length, 1, 1);            
+            
+            
+            cbResultBuffer.GetData(ResultIndexes);
             cbPathInfos.GetData(PathInfos);
             //get
             /*
@@ -109,7 +115,7 @@ public class FlowMaker : MonoBehaviour
             ComputeBufferToTexture.Instance.SetTexture(
                 "ResultIndexes",
                 ResultIndexes,
-                (index => { return new Color(ResultIndexes[index], 0, 0); }) // color setting                
+                (index => { return new Color(ResultIndexes[index].Cost, 0, 0); }) // color setting                
                 );
 
             ComputeBufferToTexture.SetText(

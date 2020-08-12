@@ -49,8 +49,6 @@ public class ObstacleMaker : MonoBehaviour
     {
         //get index to check already made
         int index = BufferForGPU.CalcuateIndex((int)worldPos.x, (int)worldPos.z);
-
-        Debug.LogError("index : " + index + "\nWorld : " + worldPos);
         if (index >= PathInfos.Length || index < 0)
             return;
 
@@ -65,7 +63,6 @@ public class ObstacleMaker : MonoBehaviour
 
             instancedObstacle.transform.position = worldPos;
             PathInfos[index].IsNotPathAble = true;
-            Debug.LogError(worldPos);
         }
     }
 }

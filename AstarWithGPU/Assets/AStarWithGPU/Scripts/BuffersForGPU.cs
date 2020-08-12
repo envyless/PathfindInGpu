@@ -65,5 +65,11 @@ public class BufferForGPU
             
             return Index;
         }
-    }    
+    }  
+    
+    public struct CalcuatedInfo
+    {
+        public int Index;
+        public float Cost;
+    }
 }

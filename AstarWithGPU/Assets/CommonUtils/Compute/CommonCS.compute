@@ -1,0 +1,8 @@
+﻿#define CommonCS
+#ifdef CommonCS
+
+#define MakeArray(StructName ,T, Num) struct StructName { T array[Num]; int index; int MaxCount;}
+
+
+
+#endif

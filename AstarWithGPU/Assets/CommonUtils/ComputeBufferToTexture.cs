@@ -36,6 +36,11 @@ public class ComputeBufferToTexture : MonoBehaviour
         }
     }
 
+    public static void SetScaleTexture(float scale)
+    {
+        Instance.parentTexture.localScale = Vector2.one * scale;
+    }
+
     public Texture2D SetTexture(string textureName, Array array, MakeColorFromIndex callback, int width = 0, int height = 0)
     {
         RIWithTexture rwTexture;
@@ -121,8 +126,6 @@ public class ComputeBufferToTexture : MonoBehaviour
                 textList.Add(text);
             }
         }
-
-        
 
         int x = 0;
         int y = 0;
