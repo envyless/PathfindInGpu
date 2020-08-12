@@ -9,15 +9,22 @@ struct PathInfo
 
     //position
     float2 position;
-    float CostToGoal;
-    
+    float CostToGoal;    
+};
+
+struct CalculatePathInfo
+{
+    int Index;
 };
  
 
 // contains all of path info ordered index
 RWStructuredBuffer<PathInfo> PathBuffer;
+// need calcuate that index
+RWStructuredBuffer<int> CalcPathBuffer;
 RWTexture2D<int> ResultIndexes;
-uint NumWidth;
+int NumWidth;
+int NumHeight;
 float2 PlayerPosition, GoalPosition;
 
 
@@ -26,13 +33,114 @@ uint GetIndex(uint3 id)
 	return id.x; //+ id.y * NumWidth;
 }
 
+int TetWhile(int index)
+{
+    int aaa[100];
+    StructuredBuffer<int> aaab;
+    int iVar[3] = { 1, 2, 3 };
+    
+    while(index < 5)
+    {
+        aaab.Append(3);
+        aaa[99] = 1;
+        ++index;
+    }
+    return 0;
+}
+
 [numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+    NumHeight = 100;
+    
+    //thread id to index
     uint index = GetIndex(id);
     
-	PathInfo pathInfo = PathBuffer[index];    
-	PathBuffer[index] = pathInfo;
+    //get calc index
+    //int index_to_calc = CalcPathBuffer[ index];
+    PathInfo pathInfo = PathBuffer[index];
+ 
+    //already cacluated
+    if (pathInfo.CostToGoal != 0)
+        return;
+    
+    int indexY = index / NumWidth;
+    int indexX = index % NumWidth;
+    
+    int up_index = index + NumWidth;
+    TetWhile(1);
+    return;
+    //up check
+    if(indexY + 1 < NumHeight)
+    {
+        float h = 1;
+        uint target_index = up_index;
+
+        //do
+        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+        {
+            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;            
+        }
+    }
+        
+    int down_index = index - NumWidth;
+    //down check
+    if(indexY - 1 >= 0)
+    {
+        //do
+        float h = 1;
+        uint target_index = down_index;
+        //do
+        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+        {
+            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
+        }
+    }    
+    
+    int left = index - 1;
+    //left check
+    if(indexX - 1 > 0)
+    {
+        //do
+        //do
+        float h = 1;
+        uint target_index = left;
+        //do
+        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+        {
+            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
+        }
+    }
+    
+    int right = index + 1;
+    if(indexX + 1 < NumWidth)
+    {
+        //do
+        //do
+        float h = 1;
+        uint target_index = right;
+        //do
+        if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
+        {
+            PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
+        }
+    }
+    
+    int r_up = up_index + 1;
+    int l_up = up_index - 1;
+    int r_down = down_index + 1;
+    int l_down = down_index - 1;
+    
+    
+    if (up_index )
+    
+    
+    
+    
+    PathBuffer[index] = pathInfo;
+    
+    
+    
     
     /*if (index % 2 == 0 && index - 1 > 0)
     {
@@ -42,4 +150,4 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //PathBuffer[index].position.y = id.y;
 
     //make vector to 
-	}
+}
