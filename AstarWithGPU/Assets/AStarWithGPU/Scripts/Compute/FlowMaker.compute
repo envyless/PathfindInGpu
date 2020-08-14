@@ -25,6 +25,7 @@ struct CalculatePathInfo
     }
 };
 
+ArrayStruct(CaculatedList,CalculatePathInfo,100);
 
 // contains all of path info ordered index
 RWStructuredBuffer<PathInfo> PathBuffer;
@@ -32,21 +33,16 @@ RWStructuredBuffer<PathInfo> PathBuffer;
 RWStructuredBuffer<CalculatePathInfo> CalcPathBuffer;
 int NumWidth;
 int NumHeight;
-int PlayerIndex;
+int PlayerIndex, GoalIndex;
 float2 PlayerPosition, GoalPosition;
-MakeArray(IntList ,int, 100) b;
-
-IntList cc;
 
 uint GetIndex(uint3 id)
 {    
-    cc.index++;
-    b.index++;
-    PathBuffer[id.x].CostToGoal = cc.index;
+    //PathBuffer[id.x].CostToGoal = cc.index;
 	return id.x; //+ id.y * NumWidth;
 }
 
-float GetCostToGoal(uint from_index, uint goal_index, in CalculatePathInfo openList[100])
+float GetCostToGoal(uint from_index, uint goal_index)
 {
     PathInfo pathInfoFrom = PathBuffer[from_index];
     //check able to go?
@@ -57,28 +53,48 @@ float GetCostToGoal(uint from_index, uint goal_index, in CalculatePathInfo openL
     float2 toLen = pathInfoGoal.position - pathInfoFrom.position;
     float doubled_len = toLen.x * toLen.x + toLen.y * toLen.y;
     
-    CalcPathBuffer[from_index].Cost = openList[0].GetSize();
     return doubled_len; 
 }
 
+void CalcPath(inout CalculatePathInfo ceap_path_info, inout CaculatedList openList, int index_from, int index_to)
+{   
+    openList.index = 0;
+    CalculatePathInfo from_calc_path;
+    from_calc_path.Index = index_from;
+    from_calc_path.Cost = GetCostToGoal(index_from, GoalIndex);
+    openList.Add(from_calc_path);
+    if(ceap_path_info.Cost > openList.Last().Cost)
+        ceap_path_info = openList.Last(); 
+}
 
-
-int PathFind(int index)
+void PathFind(int index)
 {
+    CaculatedList openList;  
+    
+    for(int i = 0; i < 100; ++i){
+        openList.buffer[i].Cost = 0;
+        openList.buffer[i].Index = 0;
+    }
+      
     //list index    
     //temp buffer
-    CalculatePathInfo openList[100];
-    CalculatePathInfo closeList[100];
+    openList.MaxCount = 100;
+    openList.index = 0;
+    
+    CaculatedList closeList;  
+    closeList.index = 0;  
     
     int path[100];
     int current_index = 0;
-    int goal_index = 100;
     bool isFind = false;        
     
     PathInfo pathInfo = PathBuffer[index];
-    pathInfo.CostToGoal = GetCostToGoal(index, goal_index, openList);
-    
-    PathBuffer[index] = pathInfo;
+    CalculatePathInfo ceap_path_info;
+    ceap_path_info.Index = 0;
+    ceap_path_info.Cost = 10000;
+    if(index == GoalIndex)
+        return;
+                 
     while(!isFind)
     {
         if(current_index >= 100)
@@ -88,76 +104,57 @@ int PathFind(int index)
         int indexY = index / NumWidth;
         int indexX = index % NumWidth;
         
+              
         int up_index = index + NumWidth;
         if(indexY + 1 < NumHeight)
-        {
-            float h = 1;
-            uint target_index = up_index;
-            //float cost_to_goal = GetCostToGoal(target_index, goal_index);    
+        {        
+            CalcPath(ceap_path_info, openList, up_index, GoalIndex);                                          
         }
+        openList.index++;
             
         int down_index = index - NumWidth;
         //down check
         if(indexY - 1 >= 0)
         {
-            //do
-            float h = 1;
-            uint target_index = down_index;
-            //do
-            if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-            {
-                PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
-            }
+            CalcPath(ceap_path_info, openList, down_index, GoalIndex);   
         }    
+        openList.index++;
         
         int left = index - 1;
         //left check
         if(indexX - 1 > 0)
         {
-            //do
-            //do
-            float h = 1;
-            uint target_index = left;
-            //do
-            if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-            {
-                PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
-            }
-        }
+            CalcPath(ceap_path_info, openList, left, GoalIndex);    
+        }    
+        openList.index++;
         
         int right = index + 1;
-        if(indexX + 1 < NumWidth)
+        if(indexX + 1 < right)
         {
-            //do
-            //do
-            float h = 1;
-            uint target_index = right;
-            //do
-            if (PathBuffer[target_index].IsNotPathAble && PathBuffer[target_index].CostToGoal != 0)
-            {
-                PathBuffer[target_index].CostToGoal = pathInfo.CostToGoal + h;
-            }
-        }
+            CalcPath(ceap_path_info, openList, right, GoalIndex);   
+        }    
+        openList.index++;
+        
+        closeList.Add(ceap_path_info);
         
         int r_up = up_index + 1;
         int l_up = up_index - 1;
         int r_down = down_index + 1;
-        int l_down = down_index - 1;
-            
-        
-        //path[startPathIndex];
-        return 0;
-        
+        int l_down = down_index - 1;   
+        index = ceap_path_info.Index;     
     }
     
+    int count_close_list = closeList.index;
+    for(int i = 0; i < count_close_list; ++i)
+    {
+        PathBuffer[closeList.buffer[i].Index].CostToGoal = closeList.buffer[i].Cost;
+    }
+    PathBuffer[GoalIndex].CostToGoal = 10;
 }
 
 [numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
-{
-    b.index = 1;
-    cc.index =2;
-    
+{    
     NumHeight = 100;    
     
     //thread id to index
@@ -166,5 +163,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //get calc index
     //int index_to_calc = CalcPathBuffer[ index];
     PathInfo pathInfo = PathBuffer[index];
-    PathFind(PlayerIndex);        
+    //PathFind(PlayerIndex);        
+    PathFind(PlayerIndex);
+    
 }

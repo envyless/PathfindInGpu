@@ -14,6 +14,7 @@ public class BufferForGPU
         NumOfHeight = numHeight;
         CenterPosition = centerPos;
         StartPosition = CenterPosition - new Vector2(NumOfWidth, NumOfHeight) * 0.5f;
+        Debug.LogError("StartPosition : "+StartPosition);
 
         PathInfo[] pathInfos = new PathInfo[numWidth * NumOfHeight];
         return pathInfos;
@@ -33,7 +34,7 @@ public class BufferForGPU
 
         Index = (int)relativePos.x + (int)relativePos.y * NumOfWidth;
         return Index;
-    }
+    }      
 
     /// <summary>
     /// path information is in each cell of map
@@ -64,6 +65,15 @@ public class BufferForGPU
             Index = BufferForGPU.CalcuateIndex((int)Position.x, (int)position.y);
             
             return Index;
+        }
+        
+        public Vector2 CalcPos()
+        {
+            int h = Index / NumOfWidth;
+            int w = Index % NumOfWidth;
+            
+            Position = (new Vector2(w, h) + StartPosition);
+            return Position;
         }
     }  
     
