@@ -675,10 +675,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc66f9f3c75a7de4f95005e53e3cab1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flowMakerComputeShader: {fileID: 7200000, guid: fe49d62ee8dee4a4485887c16e989ed2,
+  flowMakerComputeShader: {fileID: 7200000, guid: 0636e03ef90744e7ab0297b2e201e39f,
     type: 3}
   FlowGoalPos: {x: 0, y: 0, z: 0}
-  ResultIndexes: 
 --- !u!1 &1990493135
 GameObject:
   m_ObjectHideFlags: 0

@@ -63,8 +63,8 @@ void CalcPath(inout CalculatePathInfo ceap_path_info, inout CaculatedList openLi
     from_calc_path.Index = index_from;
     from_calc_path.Cost = GetCostToGoal(index_from, GoalIndex);
     openList.Add(from_calc_path);
-    if(ceap_path_info.Cost > openList.Last().Cost)
-        ceap_path_info = openList.Last(); 
+    if(ceap_path_info.Cost > openList.buffer[openList.index-1].Cost)
+        ceap_path_info = openList.buffer[openList.index-1]; 
 }
 
 void PathFind(int index)

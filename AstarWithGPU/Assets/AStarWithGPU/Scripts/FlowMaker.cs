@@ -40,6 +40,14 @@ public class FlowMaker : MonoBehaviour
         obstacleMaker = FindObjectOfType<ObstacleMaker>();
 
         PathInfos = BufferForGPU.MakePathInfos(obstacleMaker.NumObstacleW, obstacleMaker.NumObstacleH, Vector3.zero);
+
+        for (int i = 0; i < PathInfos.Length; i++)
+        {
+            PathInfos[i].Index = i;
+            PathInfos[i].CalcPos();
+        }
+
+        Debug.LogError(PathInfos[0].Position);
     }
 
     private void Start()
@@ -92,9 +100,10 @@ public class FlowMaker : MonoBehaviour
             var playerIndex = BufferForGPU.CalcuateIndex((int)PlayerPosition.x, (int)PlayerPosition.z);
 
             flowMakerComputeShader.SetInt("PlayerIndex", playerIndex);
+            flowMakerComputeShader.SetInt("GoalIndex", BufferForGPU.CalcuateIndex((int)goalPos.x, (int)goalPos.z));
             flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
             flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);            
-            flowMakerComputeShader.Dispatch(Mainkernel, PathInfos.Length, 1, 1);            
+            flowMakerComputeShader.Dispatch(Mainkernel, 1, 1, 1);            
             
             
             cbResultBuffer.GetData(ResultIndexes);
@@ -121,10 +130,15 @@ public class FlowMaker : MonoBehaviour
             ComputeBufferToTexture.SetText(
                 PathInfos, (index =>
                 {
-                    if(PathInfos[index].IsNotPathAble == false)
+                    if(PathInfos[index].CostToGoal == 0)
                     {
                         return (string.Empty, Vector3.zero);
                     }
+
+                    Debug.LogError("index : "+index+"\n"+string.Format("position : {0}",
+                        (PathInfos[index].CostToGoal.ToString(),
+                            new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y))));
+                    
 
                     return (PathInfos[index].CostToGoal.ToString(), new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
                 })
