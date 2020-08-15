@@ -1,6 +1,5 @@
-﻿#include "Assets/CommonUtils/Compute/CommonCS.compute"
+﻿#include "../../../CommonUtils/Compute/CommonCS.compute"
 
-// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
 

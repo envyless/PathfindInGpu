@@ -1,6 +1,5 @@
-﻿#define CommonCS
-#ifdef CommonCS
-
+﻿#ifndef CommonCS
+#define CommonCS
 #define ArrayStruct(StructName ,T, Num) struct StructName { T buffer[Num]; int index; int MaxCount; \
         void Add(T input)\
         { buffer[index] = input; index++;}\
