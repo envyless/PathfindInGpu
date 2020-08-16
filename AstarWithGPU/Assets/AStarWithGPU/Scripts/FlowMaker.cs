@@ -135,7 +135,7 @@ public class FlowMaker : MonoBehaviour
                         return (string.Empty, Vector3.zero);
                     }
                    
-                    return (ResultIndexes[index].BaseIndex.ToString(), new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                    return (((int)(ResultIndexes[index].Cost)).ToString(), new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
                 })
                 );
         }

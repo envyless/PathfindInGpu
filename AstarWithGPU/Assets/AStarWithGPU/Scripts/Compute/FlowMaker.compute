@@ -1,8 +1,6 @@
 ﻿#include "../../../CommonUtils/Compute/CommonCS.compute"
 
 #pragma kernel CSMain
-#pragma exclude_renderers d3d11_9x
-#pragma exclude_renderers d3d9
 
 struct PathInfo
 {
@@ -52,7 +50,7 @@ float GetCostToGoal(uint from_index, uint goal_index)
     
     PathInfo pathInfoGoal = PathBuffer[goal_index];
     float2 toLen = pathInfoGoal.position - pathInfoFrom.position;
-    float doubled_len = toLen.x * toLen.x + toLen.y * toLen.y;
+    float doubled_len = sqrt(toLen.x * toLen.x + toLen.y * toLen.y);
     
     return doubled_len;
 }
@@ -61,53 +59,63 @@ CalculatePathInfo CalcPath(int index_from, int index_to, in CalculatePathInfo cu
 {
     CalculatePathInfo from_calc_path;
     from_calc_path.Index = index_from;
-    from_calc_path.Cost = GetCostToGoal(index_from, GoalIndex) + currentPath.Cost;
+    from_calc_path.Cost = GetCostToGoal(index_from, GoalIndex) + 1;
     from_calc_path.BaseIndex = currentPath.Index;
-    //CalcPathBuffer[from_calc_path.Index] = from_calc_path;
+    CalcPathBuffer[from_calc_path.Index] = from_calc_path;
     return from_calc_path;
 }
 
-int FindIndex(in CaculatedList target_list, int index)
+int FindIndex(inout CalculatePathInfo target_list[100], int index, int indexOfList)
 {
     int iFindIndex = -1;
-    int numlist = target_list.index;
+    int numlist = indexOfList;
     for (int i = 0; i < numlist; ++i)
     {
-        if (target_list.buffer[i].Index == index)
+        if (target_list[i].Index == index)
         {
             iFindIndex = i;
             break;
         }
     }
+    
     return iFindIndex;
+}
+
+void SwapAndRemove(int target_index, inout CalculatePathInfo openList[100], inout int indexOpenList)
+{
+    CalculatePathInfo cpi = openList[indexOpenList - 1];
+    openList[target_index] = cpi;   
 }
 
 void PathFind(int index)
 {
-    CaculatedList openList;
+    CalculatePathInfo openList[100];
+    int indexOpenList = 0;
     //init
     for (int i = 0; i < 100; ++i)
     {
-        openList.buffer[i].Cost = 0;
-        openList.buffer[i].Index = 0;
+        openList[i].Cost = 0;
+        openList[i].Index = -1;
+        openList[i].BaseIndex = -1;
+
     }
-    openList.MaxCount = 100;
-    openList.index = 0;
     
-    CaculatedList closeList;
+    
+    CalculatePathInfo closeList[100];
+    int indexCloseList = 0;
     for (int i = 0; i < 100; ++i)
     {
-        closeList.buffer[i].Cost = 0;
-        closeList.buffer[i].Index = 0;
+        closeList[i].Cost = 0;
+        closeList[i].Index = -1;
+        closeList[i].BaseIndex = -1;
     }
-    closeList.MaxCount = 100;
-    closeList.index = 0;
-    
-    int path[100];    
+        
+    int path[100];
     bool isFind = false;
     
     //current index
     PathInfo pathInfo = PathBuffer[index];
+    
     CalculatePathInfo currPathInfo;
     currPathInfo.Index = index;
     currPathInfo.Cost = GetCostToGoal(index, GoalIndex);
@@ -116,36 +124,59 @@ void PathFind(int index)
         return;
             
     //start to open list
-    openList.Add(currPathInfo);
-    int loop_count = 0;
+    openList[indexOpenList] = currPathInfo;
+    indexOpenList++;
     
+    int loop_count = 0;
+    [fastopt]
     do
     {
+        if (loop_count > 50)
+            break;
+        //CalcPathBuffer[loop_count].BaseIndex = indexOpenList;
         loop_count++;
         //when stop? check
-        if (openList.index == 0 || currPathInfo.Index == GoalIndex)
+        if (indexOpenList == 0 || currPathInfo.Index == GoalIndex)
+        {            
             break;
-        //CalcPathBuffer[10].BaseIndex = 123;
-        //find cheap cost path
-        for (int i = 0; i < openList.index; ++i)
-        {
-            if (openList.buffer[i].Cost < currPathInfo.Cost)
-            {
-                //CalculatePathInfo cpiInOpen = ;
-                currPathInfo = openList.buffer[i];
-                //remove current from open list
-                openList.SwapAndRemove(i);
-                break;
-            }
         }
+            
+        //
+        //find cheap cost path
+        int findIndex = -1;
+        
+        [fastopt]
+        for (int i = 0; i < indexOpenList; ++i)
+        {            
+            if (openList[i].Cost <= currPathInfo.Cost)
+            {                
+                findIndex = i;                               
+            }
+        }     
+        
+        if(findIndex != -1)
+        {
+            //remove current from open list                                        
+            //SwapAndRemove(findIndex, openList, indexOpenList);
+            currPathInfo = openList[findIndex];
+            openList[findIndex] = openList[indexOpenList - 1];
+            indexOpenList--;           
+        }
+        
+        //AddCurrent To Close check
+        closeList[indexCloseList] = currPathInfo;
+        indexCloseList++;
         
         //find goal
         if (currPathInfo.Index == GoalIndex)
+        {
+            CalcPathBuffer[1].BaseIndex = 300;
             break;
+        }            
                 
         //foreach neighbour of the current
         //check is not enter? or is already in closelist? skip and next
-        
+        index = currPathInfo.Index;
         int indexY = index / NumWidth;
         int indexX = index % NumWidth;
         bool skip = false;
@@ -183,9 +214,10 @@ void PathFind(int index)
                 continue;
             
             //is in close? skip
-            int indexInClose = FindIndex(closeList, target_index);
+            int indexInClose = FindIndex(closeList, target_index, indexCloseList);
             if (indexInClose != -1)
             {
+                CalcPathBuffer[99].BaseIndex = 94;
                 continue;
             }
             
@@ -193,19 +225,28 @@ void PathFind(int index)
             CalculatePathInfo cpi = CalcPath(target_index, GoalIndex, currPathInfo);
             //is in open list? so which one is cheaper? and then swap that
             //if not in open? so add that
-            int indexInOpen = FindIndex(openList, cpi.Index);
-            if (indexInOpen != -1 &&
-                openList.buffer[indexInOpen].Cost > cpi.Cost)
+            int indexInOpen = FindIndex(openList, cpi.Index, indexOpenList);
+            if (indexInOpen != -1)
             {
-                //openList.buffer[indexInOpen] = cpi;
+                if (openList[indexInOpen].Cost > cpi.Cost)
+                    openList[indexInOpen] = cpi;
             }
             else
-            {
-                openList.Add(cpi);
+            {                
+                openList[indexOpenList] = cpi;
+                indexOpenList++;                
             }
+            
+            if(loop_count == 1)
+                break;
         }
-        break;
-    } while (false);
+    } while (indexOpenList >= 0);   
+    
+    for (int i = 0; i < indexOpenList; ++i)
+    {
+        //CalcPathBuffer[i].BaseIndex = openList[i].BaseIndex;
+    }
+
 }
 
 [numthreads(1, 1, 1)]
