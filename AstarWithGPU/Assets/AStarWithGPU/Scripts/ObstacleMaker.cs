@@ -39,9 +39,9 @@ public class ObstacleMaker : MonoBehaviour
 
             //try 4 times for make more big wall
             MakeObstacleInIndex(worldPos);
-            MakeObstacleInIndex(worldPos + Vector3.right);
+            /*MakeObstacleInIndex(worldPos + Vector3.right);
             MakeObstacleInIndex(worldPos + Vector3.forward);
-            MakeObstacleInIndex(worldPos + Vector3.right + Vector3.forward);
+            MakeObstacleInIndex(worldPos + Vector3.right + Vector3.forward);*/
         }
     }
 

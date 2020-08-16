@@ -29,7 +29,7 @@ public class FlowMaker : MonoBehaviour
     public Vector3 FlowGoalPos;                         // goal position
     public BufferForGPU.PathInfo[] PathInfos;           // path information length about 10000 over
 
-    public BufferForGPU.CalcuatedInfo[] ResultIndexes;                         // get result data;
+    public BufferForGPU.CalculatePathInfo[] ResultIndexes;                         // get result data;
 
     ComputeBuffer cbPathInfos, cbResultBuffer;
     
@@ -66,8 +66,8 @@ public class FlowMaker : MonoBehaviour
         flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
 
         // make buffer and set
-        ResultIndexes = new BufferForGPU.CalcuatedInfo[10000];
-        cbResultBuffer = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalcuatedInfo>());
+        ResultIndexes = new BufferForGPU.CalculatePathInfo[10000];
+        cbResultBuffer = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalculatePathInfo>());
         flowMakerComputeShader.SetBuffer(Mainkernel, "CalcPathBuffer", cbResultBuffer);
 
         flowMakerComputeShader.SetInt("NumWidth", obstacleMaker.NumObstacleW);
@@ -98,14 +98,14 @@ public class FlowMaker : MonoBehaviour
             float y = PlayerPosition.z;
 
             var playerIndex = BufferForGPU.CalcuateIndex((int)PlayerPosition.x, (int)PlayerPosition.z);
-
+            var goalIndex = BufferForGPU.CalcuateIndex((int)goalPos.x, (int)goalPos.z);
             flowMakerComputeShader.SetInt("PlayerIndex", playerIndex);
-            flowMakerComputeShader.SetInt("GoalIndex", BufferForGPU.CalcuateIndex((int)goalPos.x, (int)goalPos.z));
+            flowMakerComputeShader.SetInt("GoalIndex", goalIndex);
             flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
             flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);            
-            flowMakerComputeShader.Dispatch(Mainkernel, 1, 1, 1);            
-            
-            
+            flowMakerComputeShader.Dispatch(Mainkernel, 1, 1, 1);
+
+            Debug.LogError("goal index : " + goalIndex);
             cbResultBuffer.GetData(ResultIndexes);
             cbPathInfos.GetData(PathInfos);
             //get
@@ -128,19 +128,14 @@ public class FlowMaker : MonoBehaviour
                 );
 
             ComputeBufferToTexture.SetText(
-                PathInfos, (index =>
+                ResultIndexes, (index =>
                 {
-                    if(PathInfos[index].CostToGoal == 0)
+                    if(ResultIndexes[index].BaseIndex == 0)
                     {
                         return (string.Empty, Vector3.zero);
                     }
-
-                    Debug.LogError("index : "+index+"\n"+string.Format("position : {0}",
-                        (PathInfos[index].CostToGoal.ToString(),
-                            new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y))));
-                    
-
-                    return (PathInfos[index].CostToGoal.ToString(), new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                   
+                    return (ResultIndexes[index].BaseIndex.ToString(), new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
                 })
                 );
         }

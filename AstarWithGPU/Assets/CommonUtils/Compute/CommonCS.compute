@@ -5,9 +5,10 @@
         { buffer[index] = input; index++;}\
         \
         T Last()\
-        { return buffer[index];\
+        { return buffer[index-1];\
         } \
-        void Init(){ MaxCount = Num; index = 0;}};\
+        void Init(){ MaxCount = Num; index = 0;}\
+        void SwapAndRemove(int targetIndex){T temp = buffer[index-1]; buffer[targetIndex] = temp; index--; }};\
         
         
 #endif

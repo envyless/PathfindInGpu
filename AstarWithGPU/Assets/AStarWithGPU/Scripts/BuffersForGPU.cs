@@ -77,9 +77,10 @@ public class BufferForGPU
         }
     }  
     
-    public struct CalcuatedInfo
+    public struct CalculatePathInfo
     {
         public int Index;
         public float Cost;
+        public int BaseIndex;
     }
 }
