@@ -1,0 +1,44 @@
+﻿
+#ifndef MemoryTest
+#define MemoryTest
+
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel MTestFunc
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+//RWTexture2D<float4> Result;
+
+struct MT
+{
+    int a;
+    int b;
+    int c;
+    int d;
+};
+MT arrays5[60000];
+void MemoryTestFunc(uint id)
+{   
+    MT arrays2[60000];
+    MT arrays3[60000];
+}
+
+
+RWStructuredBuffer<MT> cb;
+[numthreads(8,8,1)]
+void MTestFunc (uint3 id : SV_DispatchThreadID)
+{   
+
+    
+    
+    
+    // TODO: insert actual code here!
+    MemoryTestFunc(id.x);
+    cb[id.x + id.y * 8].a = 1;
+    cb[id.x + id.y * 8].b = 1;
+    cb[id.x + id.y * 8].c = 1;
+    cb[id.x + id.y * 8].d = 1;
+    
+    //Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
+#endif
