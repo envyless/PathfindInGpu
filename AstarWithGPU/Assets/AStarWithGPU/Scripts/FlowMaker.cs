@@ -21,7 +21,7 @@ using UnityEngine;
 public class FlowMaker : MonoBehaviour
 {
     public List<int> result = new List<int>();
-
+    
     public static FlowMaker Instance;    
     ObstacleMaker obstacleMaker;
 
@@ -95,6 +95,9 @@ public class FlowMaker : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Mouse1))
         {
+            int[] a = new int[10000];
+            a[0] = 10;
+
             cbPathInfos.SetData(PathInfos);            
             flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
             Vector3 goalPos = ScreenToWorldPlane.GetWorldPlanePos();
@@ -106,7 +109,10 @@ public class FlowMaker : MonoBehaviour
             float y = PlayerPosition.z;
 
             var playerIndex = BufferForGPU.CalcuateIndex((int)PlayerPosition.x, (int)PlayerPosition.z);
-            var goalIndex = BufferForGPU.CalcuateIndex((int)goalPos.x, (int)goalPos.z);
+            var goalIndex = BufferForGPU.CalcuateIndex((int)UnityEngine.Random.Range(BufferForGPU.StartPosition.x, BufferForGPU.StartPosition.x + obstacleMaker.NumObstacleW),
+                (int)UnityEngine.Random.Range(BufferForGPU.StartPosition.y, BufferForGPU.StartPosition.y + obstacleMaker.NumObstacleH));
+
+            Debug.LogError("Goal index : " + goalIndex);
             flowMakerComputeShader.SetInt("PlayerIndex", playerIndex);
             flowMakerComputeShader.SetInt("GoalIndex", goalIndex);
             flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
@@ -124,7 +130,7 @@ public class FlowMaker : MonoBehaviour
             
             naviToGoal.PathIndexesToGoal.Clear();
             naviToGoal.PathIndexesToGoal.AddRange(ResultIndexes);*/
-
+/*
             ComputeBufferToTexture.Instance.SetTexture(
                 "PathInfos",
                 PathInfos, 
@@ -162,7 +168,7 @@ public class FlowMaker : MonoBehaviour
                     return ("i:"+ResultIndexes[index].Index, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
                 }), obstacleMaker.NumObstacleW, Color.red
                 );
-
+*/
             //check result
             result.Clear();
             int targetIndex = goalIndex;
@@ -186,7 +192,6 @@ public class FlowMaker : MonoBehaviour
     {
         for (int i = 0; i < result.Count - 1; ++i)
         {
-            Debug.LogError(result[i]);
             var targetIndex = result[i];
             var targetIndex2 = result[i+1];
             LineDrawerMgr.DrawLine(new Vector3(PathInfos[targetIndex].Position.x, 3, PathInfos[targetIndex].Position.y),
@@ -199,5 +204,6 @@ public class FlowMaker : MonoBehaviour
     {
         cbPathInfos?.Release();
         cbResultBuffer?.Release();
+        DebugResultsCB?.Release();
     }
 }

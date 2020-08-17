@@ -29,6 +29,11 @@ ArrayStruct(CaculatedList, CalculatePathInfo, 100);
 
 // contains all of path info ordered index
 RWStructuredBuffer<PathInfo> PathBuffer;
+
+// contains all of path info ordered index
+RWStructuredBuffer<PathInfo> ResultPathBuffer;
+
+
 // need calcuate that index
 RWStructuredBuffer<CalculatePathInfo> CalcPathBuffer;
 
@@ -95,6 +100,8 @@ void SwapAndRemove(int target_index, inout CalculatePathInfo openList[100], inou
 
 void PathFind(int index)
 {
+    CalculatePathInfo tempTest[1024];
+    
     CalculatePathInfo openList[SizeOfArray];
     int indexOpenList = 0;
     //init
