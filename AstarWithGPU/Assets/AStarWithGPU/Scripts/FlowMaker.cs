@@ -20,6 +20,8 @@ using UnityEngine;
 /// </summary
 public class FlowMaker : MonoBehaviour
 {
+    public List<int> result = new List<int>();
+
     public static FlowMaker Instance;    
     ObstacleMaker obstacleMaker;
 
@@ -28,11 +30,12 @@ public class FlowMaker : MonoBehaviour
     Int32 Mainkernel = -1;                              // kernel id
     public Vector3 FlowGoalPos;                         // goal position
     public BufferForGPU.PathInfo[] PathInfos;           // path information length about 10000 over
-
     public BufferForGPU.CalculatePathInfo[] ResultIndexes;                         // get result data;
-
-    ComputeBuffer cbPathInfos, cbResultBuffer;
     
+    ComputeBuffer cbPathInfos, cbResultBuffer;
+
+    public BufferForGPU.CalculatePathInfo[] DebugResults; // for debug
+    public ComputeBuffer DebugResultsCB;
 
     private void Awake()
     {
@@ -69,6 +72,11 @@ public class FlowMaker : MonoBehaviour
         ResultIndexes = new BufferForGPU.CalculatePathInfo[10000];
         cbResultBuffer = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalculatePathInfo>());
         flowMakerComputeShader.SetBuffer(Mainkernel, "CalcPathBuffer", cbResultBuffer);
+
+        //debug setting
+        DebugResults = new BufferForGPU.CalculatePathInfo[10000];
+        DebugResultsCB = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalculatePathInfo>());
+        flowMakerComputeShader.SetBuffer(Mainkernel, "DebugResults", DebugResultsCB);
 
         flowMakerComputeShader.SetInt("NumWidth", obstacleMaker.NumObstacleW);
         flowMakerComputeShader.SetInt("NumHeight", obstacleMaker.NumObstacleH);
@@ -108,6 +116,10 @@ public class FlowMaker : MonoBehaviour
             Debug.LogError("goal index : " + goalIndex);
             cbResultBuffer.GetData(ResultIndexes);
             cbPathInfos.GetData(PathInfos);
+
+            //debug
+            DebugResultsCB.GetData(DebugResults);
+
             //get
             /*
             
@@ -128,16 +140,57 @@ public class FlowMaker : MonoBehaviour
                 );
 
             ComputeBufferToTexture.SetText(
-                ResultIndexes, (index =>
+                DebugResults, (index =>
                 {
-                    if(ResultIndexes[index].BaseIndex == 0)
+                    if(DebugResults[index].Cost == 0)
                     {
                         return (string.Empty, Vector3.zero);
                     }
-                   
-                    return (((int)(ResultIndexes[index].Cost)).ToString(), new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                return (""+((int)(DebugResults[index].Cost * 100)) / 100f, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                    //return ("b:"+((int)(ResultIndexes[index].BaseIndex)).ToString()+"\ni:"+ResultIndexes[index].Index, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
                 })
                 );
+
+            ComputeBufferToTexture.SetText(
+                ResultIndexes, (index =>
+                {
+                    if (ResultIndexes[index].Cost == 0)
+                    {
+                        return (string.Empty, Vector3.zero);
+                    }
+
+                    //return ("" + ((int)(ResultIndexes[index].Cost * 100)) / 100f, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                    return ("b:"+((int)(ResultIndexes[index].BaseIndex)).ToString()+"\ni:"+ResultIndexes[index].Index, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                }), obstacleMaker.NumObstacleW, Color.red
+                );
+
+            //check result
+            result.Clear();
+            int targetIndex = goalIndex;
+            int baseIndex = 0;
+            int maxCount = 100;
+            do
+            {
+                if (targetIndex == playerIndex)
+                    break;
+
+                var resultcpi = ResultIndexes[targetIndex];
+                baseIndex = resultcpi.BaseIndex;
+                result.Add(resultcpi.Index);
+                targetIndex = baseIndex;
+                maxCount--;
+            } while (baseIndex != 0 && maxCount > 0);                                    
+        }
+    }
+
+    private void OnGUI()
+    {
+        for (int i = 0; i < result.Count - 1; ++i)
+        {
+            var targetIndex = result[i];
+            var targetIndex2 = result[i+1];
+            Debug.DrawLine(new Vector3(PathInfos[targetIndex].Position.x, 3, PathInfos[targetIndex].Position.y),
+                new Vector3(PathInfos[targetIndex2].Position.x, 3, PathInfos[targetIndex2].Position.y), Color.white, 5f);
         }
     }
 

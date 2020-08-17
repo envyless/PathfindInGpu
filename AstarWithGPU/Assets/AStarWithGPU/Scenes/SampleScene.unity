@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2900c3dd88dcc8499b61f7538f66a68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumObstacleW: 10
-  NumObstacleH: 10
+  NumObstacleW: 20
+  NumObstacleH: 20
 --- !u!4 &259429357
 Transform:
   m_ObjectHideFlags: 0
@@ -675,6 +675,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc66f9f3c75a7de4f95005e53e3cab1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  result: 
   flowMakerComputeShader: {fileID: 7200000, guid: 0636e03ef90744e7ab0297b2e201e39f,
     type: 3}
   FlowGoalPos: {x: 0, y: 0, z: 0}

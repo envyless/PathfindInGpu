@@ -81,6 +81,7 @@ public class BufferForGPU
     {
         public int Index;
         public float Cost;
+        float CostMoved;
         public int BaseIndex;
     }
 }

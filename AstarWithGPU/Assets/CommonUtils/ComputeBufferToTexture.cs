@@ -102,7 +102,7 @@ public class ComputeBufferToTexture : MonoBehaviour
     /// <param name="callback">callback must return world position vector!</param>
     /// <param name="width"></param>
     //texture2label
-    public static void SetText(Array array, MakeStringFromIndex callback, int width = 0)
+    public static void SetText(Array array, MakeStringFromIndex callback, int width = 0, Color? color = null)
     {
         if (width == 0)
         {
@@ -144,6 +144,9 @@ public class ComputeBufferToTexture : MonoBehaviour
 
                 var info_and_position = callback(index);
                 text.transform.position = Camera.main.WorldToScreenPoint(info_and_position.Item2);
+                if (color != null)
+                    text.color = color.Value;
+
                 text.text = info_and_position.Item1;
                 text.gameObject.SetActive(text.text != string.Empty);
                 if (text.gameObject.activeInHierarchy)
