@@ -40,6 +40,8 @@ int NumHeight;
 int PlayerIndex, GoalIndex;
 float2 PlayerPosition, GoalPosition;
 
+#define SizeOfArray 150
+
 uint GetIndex(uint3 id)
 {
     //PathBuffer[id.x].CostToGoal = cc.index;
@@ -68,11 +70,11 @@ CalculatePathInfo CalcPath(int index_from, int index_to, in CalculatePathInfo cu
     return from_calc_path;
 }
 
-int FindIndex(inout CalculatePathInfo target_list[100], int index, int indexOfList)
+int FindIndex(inout CalculatePathInfo target_list[SizeOfArray], int index, int indexOfList)
 {
     int iFindIndex = -1;
     int numlist = indexOfList;
-    [unroll(100)]
+    [unroll(SizeOfArray)]
     for (int i = 0; i < numlist; ++i)
     {
         if (target_list[i].Index == index)
@@ -93,10 +95,10 @@ void SwapAndRemove(int target_index, inout CalculatePathInfo openList[100], inou
 
 void PathFind(int index)
 {
-    CalculatePathInfo openList[100];
+    CalculatePathInfo openList[SizeOfArray];
     int indexOpenList = 0;
     //init
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < SizeOfArray; ++i)
     {
         openList[i].Cost = 0;
         openList[i].Index = -1;
@@ -105,9 +107,9 @@ void PathFind(int index)
     }
     
     
-    CalculatePathInfo closeList[100];
+    CalculatePathInfo closeList[SizeOfArray];
     int indexCloseList = 0;
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < SizeOfArray; ++i)
     {
         closeList[i].Cost = 0;
         closeList[i].Index = -1;
@@ -137,8 +139,6 @@ void PathFind(int index)
     [fastopt]
     do
     {
-        if (loop_count > 50)
-            break;
         loop_count++;
         //when stop? check
         if (indexOpenList == 0 || currPathInfo.Index == GoalIndex)
@@ -260,7 +260,6 @@ void PathFind(int index)
 [numthreads(1, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    NumHeight = 100;
     if(GoalIndex == -1)
         return;
     

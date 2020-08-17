@@ -113,7 +113,6 @@ public class FlowMaker : MonoBehaviour
             flowMakerComputeShader.SetFloats("GoalPosition", goalPos.x, goalPos.z);            
             flowMakerComputeShader.Dispatch(Mainkernel, 1, 1, 1);
 
-            Debug.LogError("goal index : " + goalIndex);
             cbResultBuffer.GetData(ResultIndexes);
             cbPathInfos.GetData(PathInfos);
 
@@ -160,7 +159,7 @@ public class FlowMaker : MonoBehaviour
                     }
 
                     //return ("" + ((int)(ResultIndexes[index].Cost * 100)) / 100f, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
-                    return ("b:"+((int)(ResultIndexes[index].BaseIndex)).ToString()+"\ni:"+ResultIndexes[index].Index, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
+                    return ("i:"+ResultIndexes[index].Index, new Vector3(PathInfos[index].Position.x, 0, PathInfos[index].Position.y));
                 }), obstacleMaker.NumObstacleW, Color.red
                 );
 
@@ -187,11 +186,13 @@ public class FlowMaker : MonoBehaviour
     {
         for (int i = 0; i < result.Count - 1; ++i)
         {
+            Debug.LogError(result[i]);
             var targetIndex = result[i];
             var targetIndex2 = result[i+1];
-            Debug.DrawLine(new Vector3(PathInfos[targetIndex].Position.x, 3, PathInfos[targetIndex].Position.y),
-                new Vector3(PathInfos[targetIndex2].Position.x, 3, PathInfos[targetIndex2].Position.y), Color.white, 5f);
+            LineDrawerMgr.DrawLine(new Vector3(PathInfos[targetIndex].Position.x, 3, PathInfos[targetIndex].Position.y),
+                new Vector3(PathInfos[targetIndex2].Position.x, 3, PathInfos[targetIndex2].Position.y), Color.white, 5f);            
         }
+        result.Clear();
     }
 
     private void OnDestroy()
