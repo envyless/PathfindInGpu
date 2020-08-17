@@ -28,7 +28,8 @@ public class ObstacleMaker : MonoBehaviour
         {
             IsMakeState = true;            
         }        
-        else if(Input.GetKeyUp(KeyCode.Mouse0))
+        
+        if(Input.GetKeyUp(KeyCode.Mouse0))
         {
             IsMakeState = false;
         }

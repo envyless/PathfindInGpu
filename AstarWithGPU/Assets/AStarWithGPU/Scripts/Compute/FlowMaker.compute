@@ -1,6 +1,7 @@
 ﻿#include "../../../CommonUtils/Compute/CommonCS.compute"
 
 #pragma kernel CSMain
+#pragma enable_d3d11_debug_symbols
 
 struct PathInfo
 {

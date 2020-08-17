@@ -64,18 +64,18 @@ public class FlowMaker : MonoBehaviour
         Mainkernel = flowMakerComputeShader.FindKernel("CSMain");
 
         // make buffer and set
-        cbPathInfos = new ComputeBuffer(PathInfos.Length, CommonUtilsExtension.GetByteSize<BufferForGPU.PathInfo>());
+        cbPathInfos = new ComputeBuffer(PathInfos.Length, CommonUtils.GetByteSize<BufferForGPU.PathInfo>());
         cbPathInfos.SetData(PathInfos);
         flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
 
         // make buffer and set
         ResultIndexes = new BufferForGPU.CalculatePathInfo[10000];
-        cbResultBuffer = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalculatePathInfo>());
+        cbResultBuffer = new ComputeBuffer(10000, CommonUtils.GetByteSize<BufferForGPU.CalculatePathInfo>());
         flowMakerComputeShader.SetBuffer(Mainkernel, "CalcPathBuffer", cbResultBuffer);
 
         //debug setting
         DebugResults = new BufferForGPU.CalculatePathInfo[10000];
-        DebugResultsCB = new ComputeBuffer(10000, CommonUtilsExtension.GetByteSize<BufferForGPU.CalculatePathInfo>());
+        DebugResultsCB = new ComputeBuffer(10000, CommonUtils.GetByteSize<BufferForGPU.CalculatePathInfo>());
         flowMakerComputeShader.SetBuffer(Mainkernel, "DebugResults", DebugResultsCB);
 
         flowMakerComputeShader.SetInt("NumWidth", obstacleMaker.NumObstacleW);
