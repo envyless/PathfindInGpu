@@ -1,0 +1,6 @@
+[submodule "AstarWithGPU/Assets/--force"]
+	path = AstarWithGPU/Assets/--force
+	url = https://github.com/envyless/CommonUtilsForUnity.git
+[submodule "AstarWithGPU/Assets/CommonUtilsForUnity"]
+	path = AstarWithGPU/Assets/CommonUtilsForUnity
+	url = https://github.com/envyless/CommonUtilsForUnity.git
