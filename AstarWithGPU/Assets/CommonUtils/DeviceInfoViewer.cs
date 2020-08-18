@@ -18,10 +18,16 @@ public class DeviceInfoViewer : MonoBehaviour
         }
     }
 
-    Rect pos = new Rect(0, 0, 300, 30);
+    Rect pos = new Rect(0, 0, Screen.width*0.3f, Screen.height * 0.2f);
+    GUIStyle guiStlye = new GUIStyle();
+    private void Awake()
+    {        
+        guiStlye.fontSize = 25;
+    }
+
     // Update is called once per frame
     void OnGUI()
-    {        
-        GUI.Label(pos, "GPU Memory : "+ Profiler.GetAllocatedMemoryForGraphicsDriver()/1024 +" mb");
+    {
+        GUI.Label(pos, "GPU Memory : "+ Profiler.GetAllocatedMemoryForGraphicsDriver() * CommonUtils.Btye2Mb +" Mb", guiStlye);
     }
 }

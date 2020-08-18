@@ -93,13 +93,12 @@ public class FlowMaker : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Mouse1))
+        //if(Input.GetKeyDown(KeyCode.Mouse1))
         {
             int[] a = new int[10000];
             a[0] = 10;
 
-            cbPathInfos.SetData(PathInfos);            
-            flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
+            
             Vector3 goalPos = ScreenToWorldPlane.GetWorldPlanePos();
 
             //set player position
@@ -109,10 +108,16 @@ public class FlowMaker : MonoBehaviour
             float y = PlayerPosition.z;
 
             var playerIndex = BufferForGPU.CalcuateIndex((int)PlayerPosition.x, (int)PlayerPosition.z);
-            var goalIndex = BufferForGPU.CalcuateIndex((int)UnityEngine.Random.Range(BufferForGPU.StartPosition.x, BufferForGPU.StartPosition.x + obstacleMaker.NumObstacleW),
-                (int)UnityEngine.Random.Range(BufferForGPU.StartPosition.y, BufferForGPU.StartPosition.y + obstacleMaker.NumObstacleH));
 
-            Debug.LogError("Goal index : " + goalIndex);
+            //goal to random
+            /*var goalIndex = BufferForGPU.CalcuateIndex((int)UnityEngine.Random.Range(BufferForGPU.StartPosition.x, BufferForGPU.StartPosition.x + obstacleMaker.NumObstacleW),
+                (int)UnityEngine.Random.Range(BufferForGPU.StartPosition.y, BufferForGPU.StartPosition.y + obstacleMaker.NumObstacleH));*/
+            var goalIndex = BufferForGPU.CalcuateIndex((int)goalPos.x, (int)goalPos.z);
+
+            if (goalIndex < 0)
+                return;
+            cbPathInfos.SetData(PathInfos);
+            flowMakerComputeShader.SetBuffer(Mainkernel, "PathBuffer", cbPathInfos);
             flowMakerComputeShader.SetInt("PlayerIndex", playerIndex);
             flowMakerComputeShader.SetInt("GoalIndex", goalIndex);
             flowMakerComputeShader.SetFloats("PlayerPosition", x, y);
@@ -176,14 +181,14 @@ public class FlowMaker : MonoBehaviour
             int maxCount = 100;
             do
             {
+                maxCount--;
                 if (targetIndex == playerIndex)
                     break;
 
                 var resultcpi = ResultIndexes[targetIndex];
                 baseIndex = resultcpi.BaseIndex;
                 result.Add(resultcpi.Index);
-                targetIndex = baseIndex;
-                maxCount--;
+                targetIndex = baseIndex;                
             } while (baseIndex != 0 && maxCount > 0);                                    
         }
     }
@@ -195,7 +200,7 @@ public class FlowMaker : MonoBehaviour
             var targetIndex = result[i];
             var targetIndex2 = result[i+1];
             LineDrawerMgr.DrawLine(new Vector3(PathInfos[targetIndex].Position.x, 3, PathInfos[targetIndex].Position.y),
-                new Vector3(PathInfos[targetIndex2].Position.x, 3, PathInfos[targetIndex2].Position.y), Color.white, 5f);            
+                new Vector3(PathInfos[targetIndex2].Position.x, 3, PathInfos[targetIndex2].Position.y), Color.white, 0.1f);            
         }
         result.Clear();
     }

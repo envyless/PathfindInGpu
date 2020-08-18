@@ -147,6 +147,8 @@ void PathFind(int index)
     do
     {
         loop_count++;
+        if (loop_count > 200)
+            break;
         //when stop? check
         if (indexOpenList == 0 || currPathInfo.Index == GoalIndex)
         {            
