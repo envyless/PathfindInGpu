@@ -1,6 +1,11 @@
 # PathfindInGpu
 
 
+v1. Can One AI Find Path.
+
+[next feature]
+amount of AI (10000) can find path with no frame down
+
 study record 
 https://www.evernote.com/l/ArDRY4yJeYZGGJbhnZjCzqmGhFiq7eM09y0/
 
