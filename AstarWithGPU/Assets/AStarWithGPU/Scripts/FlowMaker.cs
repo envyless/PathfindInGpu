@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 
@@ -38,7 +39,7 @@ public class FlowMaker : MonoBehaviour
     public ComputeBuffer DebugResultsCB;
 
     private void Awake()
-    {
+    {       
         Instance = FindObjectOfType<FlowMaker>();
         obstacleMaker = FindObjectOfType<ObstacleMaker>();
 
