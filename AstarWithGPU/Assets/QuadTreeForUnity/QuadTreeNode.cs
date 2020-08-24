@@ -1,5 +1,4 @@
-﻿#define IS_Y_AXIS_HEIGHT
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,7 +20,7 @@ public unsafe class QuadTreeNode<T>
     //data
     public T data;
     public Vector3 dataPosition;
-    private bool IsSettedData = false;
+    public bool IsSettedData = false;
 
     public uint currentCapacity = 0;
 
@@ -72,9 +71,12 @@ public unsafe class QuadTreeNode<T>
 
     public bool Insert(Vector3 _pos, T _data)
     {
+        if (_pos.z != 0)
+        {
+            _pos.y = _pos.z;
+        }
         if (!IsIn(_pos))
         {
-            Debug.LogError(_pos+"is in : " + false);
             return false;
         }
         
