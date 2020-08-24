@@ -1,5 +1,13 @@
 # PathfindInGpu
 
+## Now v2 feature  
+- quad tree ! 
+- path determin where is low cost in gpu many character async ! 
+![](pathfindInGPU_QuadTree.gif)
+
+
+## v1 feture finished
+
 ![](pathfindInGPU.gif)
 
 v1. Can One AI Find Path.
