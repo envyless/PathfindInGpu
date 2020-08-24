@@ -1,12 +1,16 @@
 # PathfindInGpu
 
-## Now v2 feature  
+## Now v2 Feature  
 - quad tree ! 
 - path determin where is low cost in gpu many character async ! 
 ![](pathfindInGPU_QuadTree.gif)
 
 
-## v1 feture finished
+## v1 feture finished  
+- it find path with tile style 
+- not nav mesh
+- this version, just for study about Compute Shaders
+- ^^
 
 ![](pathfindInGPU.gif)
 
