@@ -2,7 +2,7 @@
 
 ## Now v2 Feature  
 - quad tree ! 
-- path determin where is low cost in gpu many character async ! 
+- path determin where is low cost in gpu many character async !   
 ![](pathfindInGPU_QuadTree.gif)
 
 
