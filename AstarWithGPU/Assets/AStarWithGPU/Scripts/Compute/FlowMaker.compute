@@ -1,4 +1,4 @@
-﻿#include "../../../CommonUtils/Compute/CommonCS.compute"
+﻿#include "../../../CommonUtilsForUnity/CommonUtils/Compute/CommonCS.compute"
 
 #pragma kernel CSMain
 

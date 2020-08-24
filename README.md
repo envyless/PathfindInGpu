@@ -20,3 +20,12 @@ https://www.evernote.com/l/ArCtnd7aYGNOLKs6y-EjcO0uvLHNk9_wqlg
 hlsl  
 direct compute  
 gpgpu knowledge  
+
+
+## It Use Submodule  
+
+git submodule update --recursive
+
+or:
+
+git pull --recurse-submodules
