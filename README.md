@@ -35,9 +35,5 @@ gpgpu knowledge
 
 
 ## It Use Submodule  
-
-git submodule update --recursive
-
-or:
-
+git submodule update --init --recursive
 git pull --recurse-submodules
