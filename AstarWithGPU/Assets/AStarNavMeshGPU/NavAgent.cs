@@ -31,6 +31,8 @@ public class NavAgent : MonoBehaviour
             GoalPos = ScreenToWorldPlane.GetWorldPlanePos();
             GoalPos.y = transform.position.y;
         }
+
+        //show where i am?
         for (int i = 0; i < MeshToQuadtree.indices.Length - 2; i += 3)
         {
             var i0 = MeshToQuadtree.indices[i];
@@ -45,7 +47,7 @@ public class NavAgent : MonoBehaviour
                 CommonUtils.DrawTriangle(v0, v1, v2, Color.red, 1, 1.2f);            
         }
 
-
+        //state machine
         switch (myState)
         {
             case State.Stop:
@@ -73,7 +75,5 @@ public class NavAgent : MonoBehaviour
                 }
                 break;
         }
-
-
     }
 }
