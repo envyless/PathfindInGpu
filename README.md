@@ -1,6 +1,6 @@
 # PathfindInGpu
 
-## Now v2 Feature will come until 09/01
+## Now v2 Feature will come after 09/01
 - quad tree ! 
 - path determin where is low cost in gpu many character async !   
 ![](pathfindInGPU_QuadTree.gif)
